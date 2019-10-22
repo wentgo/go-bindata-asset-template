@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -19,37 +18,22 @@ func init() {
 func main() {
 	r := chi.NewRouter()
 
-	//r.Use(middleware.Logger)
-	r.Use(logging)
+	r.Use(logging) // r.Use(middleware.Logger)
 
 	r.Get("/", index)
 	r.Get("/user/login", userLogin)
 	r.Get("/error/404", error404)
+
 	r.NotFound(error404)
 
 	//http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
-	FileServer(r, "/assets", http.Dir("assets"))
+	r.Get("/assets/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))
+		fs.ServeHTTP(w, r)
+	}))
 
 	fmt.Println("Listening on localhost:8080 ...")
 	http.ListenAndServe(":8080", r)
-}
-
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit URL parameters.")
-	}
-
-	fs := http.StripPrefix(path, http.FileServer(root))
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fs.ServeHTTP(w, r)
-	}))
 }
 
 func logging(next http.Handler) http.Handler {
