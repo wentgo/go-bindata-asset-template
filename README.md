@@ -3,7 +3,7 @@
 This repo demostrate how to embed assets(css/js/img/...) and templates(html/tmpl) into executable binary.
 
 Please install go-bindata first   
-go get https://github.com/go-bindata/go-bindata
+go get github.com/go-bindata/go-bindata
 
 $ go generate   
 $ go build
