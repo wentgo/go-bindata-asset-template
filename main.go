@@ -28,7 +28,9 @@ func main() {
 
 	//http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("assets"))))
 	r.Get("/assets/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fs := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))
+		//fs := http.StripPrefix("/assets/", http.FileServer(http.Dir("assets")))
+		//fs := http.StripPrefix("/assets/", http.FileServer(AssetFile()))
+		fs := http.FileServer(AssetFile())
 		fs.ServeHTTP(w, r)
 	}))
 
