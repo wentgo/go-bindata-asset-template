@@ -1,2 +1,7 @@
 - session
-- bind assets into binary
+
+//go:generate go-bindata -fs assets/* templates/*  // THIS NOT WORKING
+//go:generate go-bindata -fs assets/js assets/css assets/img templates
+
+https://github.com/go-bindata/go-bindata
+https://github.com/arschles/go-bindata-html-template
