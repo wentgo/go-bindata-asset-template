@@ -1,5 +1,7 @@
 package main
 
+//go:generate go-bindata -fs assets/js assets/css assets/img templates
+
 import (
 	"fmt"
 	"html/template"
@@ -9,10 +11,34 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const DEBUG = false
+
 var tpl *template.Template
 
 func init() {
-	tpl = template.Must(template.ParseGlob("templates/*"))
+	if DEBUG {
+		// load templates from local file system
+		tpl = template.Must(template.ParseGlob("templates/*"))
+		return
+	}
+
+	// load templates from bindata
+	var allTemplates string
+
+	files, err := AssetDir("templates")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		content, err := Asset("templates/" + file)
+		if err != nil {
+			panic(err)
+		}
+		allTemplates += `{{define "` + file + `"}}` + string(content) + "{{end}}"
+	}
+
+	tpl = template.Must(template.New("root").Parse(allTemplates))
 }
 
 func main() {
